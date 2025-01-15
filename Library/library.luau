@@ -3823,31 +3823,33 @@ function Library:CreateWindow(...)
 				end;
 
 				function Tab:Resize()
-					local TabCount = 0;
-
-					for _, Tab in next, Tabbox.Tabs do
-						TabCount = TabCount + 1;
-					end;
-
-					for _, Button in next, TabboxButtons:GetChildren() do
-						if not Button:IsA('UIListLayout') then
-							Button.Size = UDim2.new(1 / TabCount, 0, 1, 0);
-						end;
-					end;
-
-					if (not Container.Visible) then
-						return;
-					end;
-
-					local Size = 0;
-
-					for _, Element in next, Tab.Container:GetChildren() do
-						if (not Element:IsA('UIListLayout')) and Element.Visible then
-							Size = Size + Element.Size.Y.Offset;
-						end;
-					end;
-
-					BoxOuter.Size = UDim2.new(1, 0, 0, 20 + Size + 2 + 2);
+				   local TabCount = 0;
+				   for _, Tab in next, Tabbox.Tabs do
+				       TabCount = TabCount + 1;
+				   end;
+				   local buttonWidth = 1 / TabCount;
+				   for _, Button in next, TabboxButtons:GetChildren() do
+				       if not Button:IsA('UIListLayout') then
+				           Button.Size = UDim2.new(buttonWidth, 0, 1, 0);
+				           Button.Position = UDim2.new(buttonWidth * (TabCount - 1), 0, 0, 0);
+				       end;
+				   end;
+				   if (not Container.Visible) then
+				       return;
+				   end;
+				   local totalHeight = 0;
+				   for _, Element in next, Tab.Container:GetChildren() do
+				       if (not Element:IsA('UIListLayout')) and Element.Visible then
+				           totalHeight = totalHeight + Element.Size.Y.Offset;
+				       end;
+				   end;
+				   BoxOuter.Size = UDim2.new(1, 0, 0, totalHeight + 24);
+				   local listLayout = Tab.Container:FindFirstChildOfClass('UIListLayout');
+				   if listLayout then
+				       listLayout.Padding = UDim.new(0, 0);
+				       listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center;
+				       listLayout.VerticalAlignment = Enum.VerticalAlignment.Top;
+				   end;
 				end;
 
 				Button.InputBegan:Connect(function(Input)
